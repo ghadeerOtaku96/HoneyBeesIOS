@@ -9,23 +9,29 @@
 #import "ConversationViewController.h"
 #import "CustomTableViewCell.h"
 @interface ConversationViewController ()<UITableViewDelegate , UITableViewDataSource>
-
+@property (strong ,nonatomic) NSMutableArray<Conversation *> *conversationsArray;
 @end
 
 @implementation ConversationViewController
+
+
+// TODO: handle the date as messanger!
+// TODO: round image and presence and connect it with real data
+// TODO: move detail label up
+// TODO: disable selecting cell
+// TODO: in tableview : remove lines betoween empty cells
+// TODO: add images to assets
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    //NSArray* array = [ServicesManager sharedInstance].conversationsManagerService.conversations;
-    //self.conversationsArray=[NSMutableArray arrayWithArray:array];
-   // [[ServicesManager sharedInstance].contactsManagerService requestAddressBookAccess];
-    
+    NSArray* array = [ServicesManager sharedInstance].conversationsManagerService.conversations;
+    self.conversationsArray = [NSMutableArray arrayWithArray:array];
+ 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didAddConversation:) name:kConversationsManagerDidAddConversation object:nil];
 
-    self.ConversationsTable.delegate = self;
-    self.ConversationsTable.dataSource = self;
+   
 }
 
 - (void)didReceiveMemoryWarning {
@@ -33,13 +39,11 @@
     // Dispose of any resources that can be recreated.
 }
 
-
 - (void)viewWillAppear:(BOOL)animated {
     
     [super viewWillAppear:animated];
     
 }
-
 
 -(void)didAddConversation:(NSNotification*)notification{
     
@@ -49,6 +53,7 @@
     [self.conversationsArray addObject:conversation];
     NSLog(@"test1%@",conversation.lastMessage.body);
     NSLog(@"test2 %lu",(unsigned long)self.conversationsArray.count);
+    
 }
 
 
@@ -71,21 +76,23 @@
         cell = [tableView dequeueReusableCellWithIdentifier:@"convcell"];
     }
     
-    //Conversation * conversation = (Conversation *)  [self.conversationsArray objectAtIndex:indexPath.row];
+    Conversation * conversation = (Conversation *)  [self.conversationsArray objectAtIndex:indexPath.row];
     
-    cell.NameLabel.text = @"Alaa";
-    cell.textLabel.text = @"ghadeer";
-    cell.StatusLabel.text = @"hello";
-    cell.DateLabel.text =@"31/06/18";
-//    cell.NameLabel.text = conversation.peer.displayName;
-//    cell.StatusLabel.text = conversation.lastMessage.body;
-//    cell.DateLabel.text = (NSString*)conversation.lastUpdateDate;
+    if ([conversation.peer isKindOfClass:[Contact class]]) {
+        Contact * aContact = (Contact *)conversation.peer;
+        cell.NameLabel.text = aContact.fullName ;
+    }
+    else if ([conversation.peer isKindOfClass:[Room class]]) {
+         cell.NameLabel.text = conversation.peer.displayName;
+    }
+   
+    cell.StatusLabel.text = conversation.lastMessage.body;
+    cell.DateLabel.text = [NSString stringWithFormat:@"%@",conversation.lastUpdateDate];
     
     dispatch_async(dispatch_get_main_queue(), ^{
         cell.imageView.layer.cornerRadius = cell.imageView.frame.size.width/2;
         cell.imageView.clipsToBounds = YES;
-        
-        
+ 
     });
     return cell;
 }

@@ -10,7 +10,8 @@
 #import <Rainbow/Rainbow.h>
 #import "CustomTableViewCell.h"
 @interface ConversationViewController : UIViewController
-@property (strong ,nonatomic) NSMutableArray<Conversation *> *conversationsArray ;
+
+// the name of the properity must be small , plz change this
 @property (strong, nonatomic) IBOutlet UITableView *ConversationsTable;
 
 @end
